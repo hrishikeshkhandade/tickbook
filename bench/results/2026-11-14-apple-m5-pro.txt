@@ -1,0 +1,29 @@
+tickbook benchmark
+compiler: Apple LLVM 21.0.0 (clang-2100.4.1.1)
+build: optimized, assertions off
+clock: steady_clock, smallest step seen 41 ns, average cost of one read 15.0 ns
+stream: seed 1, 20000 resting orders prefilled (untimed), then 5000000 timed operations, memory reserved for 40000 orders
+
+throughput (whole timed stream, one clock read each end)
+  run 1: 0.480 s, 10.42 million ops/s, 96.0 ns/op average
+  run 2: 0.497 s, 10.06 million ops/s, 99.4 ns/op average
+  run 3: 0.468 s, 10.68 million ops/s, 93.7 ns/op average
+  run 4: 0.531 s, 9.41 million ops/s, 106.2 ns/op average
+  run 5: 0.434 s, 11.52 million ops/s, 86.8 ns/op average
+  run 6: 0.483 s, 10.35 million ops/s, 96.7 ns/op average
+  run 7: 0.452 s, 11.07 million ops/s, 90.4 ns/op average
+  run 8: 0.584 s, 8.56 million ops/s, 116.8 ns/op average
+  run 9: 0.558 s, 8.95 million ops/s, 111.7 ns/op average
+  run 10: 0.500 s, 10.00 million ops/s, 100.0 ns/op average
+  run 11: 0.448 s, 11.17 million ops/s, 89.5 ns/op average
+  11 runs: best 11.52, median 10.35, worst 8.56 million ops/s
+  the stream produced 682399 trades; 1855349 of 2150629 cancels hit a live order
+  book at the end: 324724 resting orders on 98 price levels
+
+latency per operation in ns (one clock read before and after each; includes the cost of the reads)
+  operation           count     p50    p90    p99   p99.9      max
+  all               5000000      42    208    417     583  6303959
+  limit, rests      2500108      42     83    166     291  6303959
+  limit, crosses     199443      42    125    333     625    15667
+  market             149820      42    125    375     667    19833
+  cancel            2150629     125    292    459     625    68125

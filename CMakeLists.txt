@@ -36,7 +36,8 @@ if(TICKBOOK_BUILD_TESTS)
   add_executable(tickbook_tests tests/order_book_test.cpp tests/fuzz_test.cpp)
   target_link_libraries(tickbook_tests PRIVATE tickbook GTest::gtest_main)
   target_compile_options(tickbook_tests PRIVATE -Wall -Wextra -Wpedantic)
-  gtest_discover_tests(tickbook_tests)
+  # A hang (for example an endless matching loop) counts as a failure.
+  gtest_discover_tests(tickbook_tests PROPERTIES TIMEOUT 120)
 endif()
 
 if(TICKBOOK_BUILD_BENCH)
