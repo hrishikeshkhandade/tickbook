@@ -17,11 +17,22 @@
         "TICKBOOK_SANITIZE": "ON",
         "TICKBOOK_BUILD_BENCH": "OFF"
       }
+    },
+    {
+      "name": "wasm",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/wasm",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "TICKBOOK_BUILD_TESTS": "OFF",
+        "TICKBOOK_BUILD_BENCH": "OFF"
+      }
     }
   ],
   "buildPresets": [
     { "name": "release", "configurePreset": "release" },
-    { "name": "asan", "configurePreset": "asan" }
+    { "name": "asan", "configurePreset": "asan" },
+    { "name": "wasm", "configurePreset": "wasm" }
   ],
   "testPresets": [
     {

@@ -45,3 +45,19 @@ if(TICKBOOK_BUILD_BENCH)
   target_link_libraries(tickbook_bench PRIVATE tickbook)
   target_compile_options(tickbook_bench PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+# WebAssembly build: the same engine plus a thin C interface (wasm/), compiled
+# with Emscripten into one .wasm file with no JavaScript glue. Only built when
+# CMake is run through emcmake, so the native build is unaffected.
+if(EMSCRIPTEN)
+  add_executable(tickbook_wasm wasm/tickbook_wasm.cpp)
+  target_link_libraries(tickbook_wasm PRIVATE tickbook)
+  target_compile_options(tickbook_wasm PRIVATE -Wall -Wextra -Wpedantic -Wconversion)
+  # A .wasm suffix tells emcc to write only the module, no .js loader.
+  set_target_properties(tickbook_wasm PROPERTIES OUTPUT_NAME tickbook SUFFIX ".wasm")
+  target_link_options(tickbook_wasm PRIVATE
+    --no-entry                  # a library of functions, there is no main()
+    -sSTANDALONE_WASM=1         # do not depend on Emscripten's JS runtime
+    -sALLOW_MEMORY_GROWTH=1     # the book can grow past the starting memory
+    "-sEXPORTED_FUNCTIONS=_tb_reset,_tb_out,_tb_add_limit,_tb_add_market,_tb_cancel,_tb_levels,_tb_resting,_tb_take_trades,_tb_order_count")
+endif()
