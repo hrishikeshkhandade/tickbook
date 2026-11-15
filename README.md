@@ -65,6 +65,8 @@ tests/reference_book.hpp          slow, obviously correct order book
 tests/fuzz_test.cpp               randomized test: engine vs reference
 bench/bench.cpp                   benchmark
 bench/results/                    raw benchmark output quoted below
+wasm/tickbook_wasm.cpp            C interface for the WebAssembly build
+wasm/smoke.mjs                    Node check of the built module
 ```
 
 The engine is a plain library with no I/O, no threads and no clock. The tests
@@ -290,11 +292,54 @@ How to read these:
   flow has different shapes (bursts, price moves, deeper cancels).
 - Benchmarked on one laptop under normal desktop load, with a 41 ns clock.
 
+## WebAssembly build
+
+The same engine compiles to WebAssembly with Emscripten. `wasm/tickbook_wasm.cpp`
+is a thin C interface around one `OrderBook`: nine plain functions that take
+numbers, plus one buffer of 32-bit integers that JavaScript reads results
+from. It adds no matching logic and the engine source is unchanged.
+
+```bash
+emcmake cmake --preset wasm
+```
+
+```bash
+cmake --build --preset wasm
+```
+
+```bash
+node wasm/smoke.mjs
+```
+
+That writes `build/wasm/tickbook.wasm` (23,345 bytes with Emscripten 7.0.0)
+and checks a few trades through it in Node. The module needs no JavaScript
+glue file. It asks its host for one function, a notice that its memory grew.
+
+Things the interface does that the engine does not:
+
+- It hands out order ids itself: 1, 2, 3, and so on.
+- Results cross as 32-bit integers. A quantity or id above 4,294,967,295 is
+  clamped to that value, and a price outside the signed 32-bit range is
+  clamped too. The engine underneath still uses 64 bits.
+
+The portfolio site runs this module as a playable order book.
+
+### Speed in a browser
+
+Measured once, on the same laptop, in Chromium 156. Raw output is in
+`bench/results/2026-11-14-wasm-browser.txt`.
+
+500,000 timed operations after 20,000 resting orders, with the same mix as
+the native benchmark (50% resting limits, 4% crossing limits, 3% market, 43%
+cancels) but a different random stream. Five runs took 94 to 104 ms, which is
+**4.8 to 5.3 million operations per second**.
+
+This is not directly comparable with the native figure. The stream is
+different and ten times shorter, every operation pays for a call from
+JavaScript into the module, and it was one browser on one machine.
+
 ## Next
 
-Not built yet. The engine was written so these can follow without changing
-it: it does no I/O and uses no threads or clock, and `levels()` and
-`resting()` already return plain snapshots of the book.
-
-- Compile the engine to WebAssembly.
-- A small visualizer that sends orders to it and draws the book.
+- Push the repository and link it from the portfolio.
+- Try an array indexed by tick in place of the map, if the map shows up in a
+  profile.

@@ -1,0 +1,28 @@
+Tickbook WebAssembly build, timed in a browser. 2026-11-14.
+
+Machine:  MacBook, Apple M5 Pro, macOS 27.0 (same laptop as the native runs), normal desktop load
+Browser:  Chromium 156.0.8078.75 (the browser pane of the Claude desktop app), not cross-origin isolated
+Module:   build/wasm/tickbook.wasm, 23,345 bytes, Emscripten 7.0.0, CMake Release
+          sha256 63ec64559b025c1c2ddfa1e3210ab77bc061a59b9d6b9bae018ccd84d78c64a9
+Harness:  the "time 500,000 operations in this browser" button in the portfolio's Tickbook scene
+          (~/portfolio src/scenes/tickbook.ts, stream from src/tickbook/flow.ts timedStream, seed 1)
+
+Workload: 20,000 resting limit orders placed first, not timed. Then 500,000 timed operations:
+          50% limit orders that rest 1 to 50 ticks from the middle, 4% limit orders that cross by
+          1 to 3 ticks, 3% market orders, 43% cancels, quantities 1 to 100. Same recipe as
+          bench/bench.cpp but a different random number generator and a tenth of the length, so it
+          is NOT the same stream as the native benchmark.
+Timing:   performance.now() once before and once after the 500,000 operations. Each operation is
+          one call from JavaScript into the module plus one call to count and clear the trade log.
+          The stream is generated before the clock starts. A fresh book for every run.
+
+Output of five runs, pressed one after another:
+
+500,000 operations in 102 ms in this tab, 68,442 trades. About 4.9 million a second
+500,000 operations in 94 ms in this tab, 68,442 trades. About 5.3 million a second
+500,000 operations in 101 ms in this tab, 68,442 trades. About 4.9 million a second
+500,000 operations in 102 ms in this tab, 68,442 trades. About 4.9 million a second
+500,000 operations in 104 ms in this tab, 68,442 trades. About 4.8 million a second
+
+Range: 94 to 104 ms, 4.8 to 5.3 million operations a second.
+The browser's clock is rounded (0.1 ms in this configuration), which is under 0.2% of these times.
