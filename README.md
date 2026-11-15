@@ -326,20 +326,27 @@ The portfolio site runs this module as a playable order book.
 
 ### Speed in a browser
 
-Measured once, on the same laptop, in Chromium 156. Raw output is in
-`bench/results/2026-11-14-wasm-browser.txt`.
+Not measured properly yet. The portfolio scene has a button that times
+500,000 operations after 20,000 resting orders, with the same mix as the
+native benchmark (50% resting limits, 4% crossing limits, 3% market, 43%
+cancels) but a different random stream.
 
-500,000 timed operations after 20,000 resting orders, with the same mix as
-the native benchmark (50% resting limits, 4% crossing limits, 3% market, 43%
-cancels) but a different random stream. Five runs took 94 to 104 ms, which is
-**4.8 to 5.3 million operations per second**.
+I ran it 55 times on the same laptop in Chromium 156. The results ranged from
+36 ms to 144 ms for the same work, which is about 3.5 to 13.9 million
+operations per second. The runs were made in a browser pane that was hidden
+for at least some of them, and a hidden page runs as a background tab. So the
+spread says more about the browser tab than about the engine, and I do not
+quote a browser figure. Every run is in
+`bench/results/2026-11-14-wasm-browser.txt`, with what a proper measurement
+would need.
 
-This is not directly comparable with the native figure. The stream is
-different and ten times shorter, every operation pays for a call from
-JavaScript into the module, and it was one browser on one machine.
+Whatever the figure turns out to be, it will not be directly comparable with
+the native one: the stream is different and ten times shorter, and every
+operation pays for a call from JavaScript into the module.
 
 ## Next
 
 - Push the repository and link it from the portfolio.
+- Time the WebAssembly build in a visible browser window on a quiet machine.
 - Try an array indexed by tick in place of the map, if the map shows up in a
   profile.

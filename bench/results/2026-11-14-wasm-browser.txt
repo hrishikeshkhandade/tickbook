@@ -1,5 +1,10 @@
 Tickbook WebAssembly build, timed in a browser. 2026-11-14.
 
+READ THIS FIRST: these runs are not a controlled measurement. Do not quote a figure from them.
+They were made in the browser pane of the Claude desktop app, and that pane was hidden for at
+least some of them. A hidden pane runs the page as a background tab. The same work took anywhere
+from 36 ms to 144 ms. Which runs had the pane visible was not recorded.
+
 Machine:  MacBook, Apple M5 Pro, macOS 27.0 (same laptop as the native runs), normal desktop load
 Browser:  Chromium 156.0.8078.75 (the browser pane of the Claude desktop app), not cross-origin isolated
 Module:   build/wasm/tickbook.wasm, 23,345 bytes, Emscripten 7.0.0, CMake Release
@@ -11,18 +16,34 @@ Workload: 20,000 resting limit orders placed first, not timed. Then 500,000 time
           50% limit orders that rest 1 to 50 ticks from the middle, 4% limit orders that cross by
           1 to 3 ticks, 3% market orders, 43% cancels, quantities 1 to 100. Same recipe as
           bench/bench.cpp but a different random number generator and a tenth of the length, so it
-          is NOT the same stream as the native benchmark.
+          is NOT the same stream as the native benchmark. Every run produced 68,442 trades.
 Timing:   performance.now() once before and once after the 500,000 operations. Each operation is
           one call from JavaScript into the module plus one call to count and clear the trade log.
           The stream is generated before the clock starts. A fresh book for every run.
 
-Output of five runs, pressed one after another:
+Milliseconds for the 500,000 timed operations, in the order the runs were made.
 
-500,000 operations in 102 ms in this tab, 68,442 trades. About 4.9 million a second
-500,000 operations in 94 ms in this tab, 68,442 trades. About 5.3 million a second
-500,000 operations in 101 ms in this tab, 68,442 trades. About 4.9 million a second
-500,000 operations in 102 ms in this tab, 68,442 trades. About 4.9 million a second
-500,000 operations in 104 ms in this tab, 68,442 trades. About 4.8 million a second
+Local development server (vite dev), first sitting:
+  102 94 101 102 104
 
-Range: 94 to 104 ms, 4.8 to 5.3 million operations a second.
-The browser's clock is rounded (0.1 ms in this configuration), which is under 0.2% of these times.
+Deployed site, first page load:
+  36 37 44 42 47 37 38 36
+
+Local development server, second sitting:
+  131 38 139 141 90 70 99
+
+Deployed site, second page load:
+  133 129 123 144 132 118 132 117 109 131 141
+  136 110 97 97 98 125        (sample orders on)
+  123 123 127 138 120 121     (sample orders off)
+  102 119 96 99 120 111       (sample orders on)
+  123 108 102 107 111 143     (sample orders off)
+
+What this does and does not show:
+- Fastest run 36 ms (about 13.9 million operations a second), slowest 144 ms (about 3.5 million).
+- Whether the sample order flow is on makes no visible difference.
+- Dev server versus deployed site does not explain the spread: both gave fast and slow runs.
+- The likely cause is the hidden pane. After the last set, the app reported the pane as hidden.
+  That is a likely cause, not a tested one.
+- To get a real figure: open the deployed site in a normal, visible browser window on an
+  otherwise quiet machine, press the button about ten times, and record every result here.
