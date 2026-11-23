@@ -356,3 +356,7 @@ operation pays for a call from JavaScript into the module.
 - Time the WebAssembly build in a visible browser window on a quiet machine.
 - Try an array indexed by tick in place of the map, if the map shows up in a
   profile.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
