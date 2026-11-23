@@ -1,5 +1,9 @@
 # Tickbook
 
+[![CI](https://github.com/hrishikeshkhandade/tickbook/actions/workflows/ci.yml/badge.svg)](https://github.com/hrishikeshkhandade/tickbook/actions/workflows/ci.yml)
+
+**[Trade against it in your browser](https://portfolio.hrishikhandade.workers.dev/#tickbook)**: the same engine, compiled to WebAssembly.
+
 A limit order book and matching engine in C++20. It takes buy and sell orders
 for one instrument, matches them by price-time priority, and records every
 trade.
@@ -196,6 +200,9 @@ timeout so a hang is reported as a failure.
 **Sanitizers.** All 33 tests pass under AddressSanitizer and
 UndefinedBehaviorSanitizer (`cmake --workflow --preset asan`).
 
+**CI.** Every push runs the release and sanitizer workflows on Linux (GCC)
+and macOS (Clang) with GitHub Actions.
+
 ## Benchmark
 
 ### Setup
@@ -346,7 +353,6 @@ operation pays for a call from JavaScript into the module.
 
 ## Next
 
-- Push the repository and link it from the portfolio.
 - Time the WebAssembly build in a visible browser window on a quiet machine.
 - Try an array indexed by tick in place of the map, if the map shows up in a
   profile.
